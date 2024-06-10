@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../lib/axios";
+import { Space, Table } from "antd";
 
-const TaskList = () => {
+// eslint-disable-next-line react/prop-types
+const TaskList = ({ refresh }) => {
   const [tasks, setTasks] = useState();
+
   useEffect(() => {
     axios
       .get("/task/list")
@@ -13,17 +16,35 @@ const TaskList = () => {
       .catch((err) => {
         console.log("err", err);
       });
-  }, []);
+  }, [refresh]);
+
+
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: '_id',
+      key: '_id',
+    },
+    {
+      title: 'Text',
+      dataIndex: 'text',
+      key: 'text',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <a>Invite {record.name}</a>
+          <a>Delete</a>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div>
-      {tasks?.map((item) => {
-        return (
-          <div key={item._id}>
-            <p>{item.text}</p>
-          </div>
-        );
-      })}
+      <Table dataSource={tasks} columns={columns} />
     </div>
   );
 };

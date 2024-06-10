@@ -4,14 +4,14 @@ import { Button, Checkbox, Form, Input } from "antd";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const onFinish = (values) => {
     console.log("Success:", values);
     axios
       .post("/user/login", {
-        email: values.email,
+        email: values.username,
         password: values.password,
       })
       .then((response) => {
@@ -59,6 +59,19 @@ const Login = () => {
         autoComplete="off"
       >
         <Form.Item
+          label="Name"
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: "Please input your name!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
           label="Email"
           name="email"
           rules={[
@@ -93,7 +106,7 @@ const Login = () => {
           }}
         >
           <Checkbox>Remember me</Checkbox>
-          <Link to={"/register"}>Register</Link>
+          <Link to={"/login"}>Login</Link>
         </Form.Item>
 
         <Form.Item
@@ -111,4 +124,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
