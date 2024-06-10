@@ -11,7 +11,12 @@ const port = 3000;
 
 connectDB();
 
-app.use(cors())
+const corsOptions = {
+  origin: 'http://localhost:5173', // İzin verilen origin
+  credentials: true, // Credentials gönderimine izin ver
+};
+
+app.use(cors(corsOptions))
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

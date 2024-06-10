@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const authenticateToken = require("../middlewares/authenticateToken");
 
+const refreshTokenSecret = "yourSecretKey";
 const refreshTokens = [];
 
 router.post("/register", async (request, response) => {
@@ -65,7 +66,7 @@ router.post("/login", async (req, res) => {
 
     // JWT oluştur
     const accessToken = jwt.sign({ userId: user.id }, "yourSecretKey", {
-      expiresIn: "15m",
+      expiresIn: "1m",
     });
     const refreshToken = jwt.sign({ userId: user.id }, "yourSecretKey", {
       expiresIn: "7d",
@@ -87,30 +88,32 @@ router.post("/login", async (req, res) => {
 });
 
 // Refresh token endpoint
-router.post("/token", authenticateToken, (req, res) => {
+router.post("/token", (req, res) => {
+  console.log('dsadsadsadsad', req.cookies.refreshToken)
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken || !refreshTokens.includes(refreshToken)) {
-    return res.status(403).json({ message: "Forbidden" });
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
-  try {
-    jwt.verify(refreshToken, refreshTokenSecret, (error, user) => {
-      if (error) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
+  jwt.verify(refreshToken, 'yourSecretKey', (error, user) => {
+    if (error) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
 
-      const payload = { user: { id: user.user.id } };
-      const accessToken = jwt.sign(payload, accessTokenSecret, {
-        expiresIn: "15m",
-      });
+    console.log('dsada', user)
 
-      res.status(200).json({ accessToken });
+    const payload = { 
+      user: { 
+        id: user.userId 
+      } 
+    };
+    const accessToken = jwt.sign(payload, 'yourSecretKey', {
+      expiresIn: '15m',
     });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+
+    res.status(200).json({ accessToken });
+  });
 });
 
 module.exports = router;

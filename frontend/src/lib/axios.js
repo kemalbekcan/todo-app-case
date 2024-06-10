@@ -1,20 +1,17 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// Axios instance oluşturma
 const instance = axios.create({
-  baseURL: "http://localhost:3000", // API'nizin base URL'si
+  baseURL: "http://localhost:3000",
+  withCredentials: true, // CORS için gerekli
 });
 
-// Request interceptor ekleme
 instance.interceptors.request.use(
   (config) => {
     const token = Cookies.get("token") || localStorage.getItem("token");
-
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => {
@@ -22,35 +19,29 @@ instance.interceptors.request.use(
   }
 );
 
-// Response interceptor ekleme
 instance.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
-
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
-        const res = await axios.post("/user/token", null, {
+        const res = await axios.post("http://localhost:3000/user/token", null, {
           withCredentials: true,
         });
+        console.log('rs', res)
         const { accessToken } = res.data;
 
-        Cookies.set("token", accessToken) ||
-          localStorage.setItem("token", accessToken);
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${accessToken}`;
+        Cookies.set("token", accessToken) || localStorage.setItem("token", accessToken);
+        instance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
-        return axios(originalRequest);
+        return instance(originalRequest);
       } catch (err) {
         console.error("Refresh token is expired", err);
       }
     }
-
     return Promise.reject(error);
   }
 );
