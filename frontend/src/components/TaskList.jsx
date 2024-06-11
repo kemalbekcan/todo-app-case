@@ -8,7 +8,7 @@ const TaskList = ({ refresh }) => {
 
   useEffect(() => {
     axios
-      .get("/task/list")
+      .get("/task/list?page=1&limit=10")
       .then((response) => {
         console.log("response", response);
         setTasks(response.data.results);

@@ -19,7 +19,7 @@ router.post("/add", authenticateToken, async (req, res) => {
       user.tasks = [];
     }
 
-    user.tasks.push(task._id);
+    user.tasks.push(task);
     await user.save();
 
     res.status(201).json(task);
