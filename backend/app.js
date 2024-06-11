@@ -6,6 +6,7 @@ const connectDB = require("./lib/connect");
 const userRouter = require("./routers/user");
 const taskRouter = require("./routers/task");
 const logRequest = require("./middlewares/logger");
+const path = require('path');
 const app = express();
 const port = 3000;
 
@@ -24,7 +25,7 @@ app.use(cookieParser());
 
 app.use(logRequest);
 
-app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/user", userRouter);
 app.use("/task", taskRouter);

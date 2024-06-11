@@ -30,14 +30,18 @@ const TaskList = ({ refresh, showModal }) => {
 
   const columns = [
     {
-      title: "Name",
+      title: "#",
       dataIndex: "_id",
       key: "_id",
+      filters: tasks.map((task) => ({ text: task._id, value: task._id })),
+      onFilter: (value, record) => record._id.includes(value),
     },
     {
       title: "Text",
       dataIndex: "text",
       key: "text",
+      filters: tasks.map((task) => ({ text: task.text, value: task.text })),
+      onFilter: (value, record) => record.text.includes(value),
     },
     {
       title: "Image",
@@ -48,19 +52,31 @@ const TaskList = ({ refresh, showModal }) => {
           <img
             src={`http://localhost:3000/uploads/${image}`}
             alt="task"
-            style={{ maxWidth: "100px" }}
+            style={{ maxWidth: "100px", cursor: "pointer" }}
+            onClick={() => handleImageClick(image)}
           />
         ) : (
           "Null"
         ),
+      filters: [
+        { text: "With Image", value: "withImage" },
+        { text: "Without Image", value: "withoutImage" },
+      ],
+      onFilter: (value, record) => {
+        if (value === "withImage") return record.image;
+        if (value === "withoutImage") return !record.image;
+        return true;
+      },
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => showModal('sadas', 'update')}>Upload {record.name}</a>
-          <a onClick={() => showModal(record._id, 'delete')}>Delete</a>
+          <a onClick={() => showModal(record, "update")}>
+            Upload
+          </a>
+          <a onClick={() => showModal(record._id, "delete")}>Delete</a>
         </Space>
       ),
     },
@@ -68,6 +84,31 @@ const TaskList = ({ refresh, showModal }) => {
 
   const handleTableChange = (pagination) => {
     setPage(pagination.current);
+  };
+
+  const handleImageClick = async (image) => {
+    if (image) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/uploads/${image}`,
+          {
+            responseType: "blob",
+          }
+        );
+
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `${image}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error downloading the image", error);
+      }
+    }
   };
 
   return (
