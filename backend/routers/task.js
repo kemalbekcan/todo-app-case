@@ -5,33 +5,50 @@ const User = require("../models/User");
 const authenticateToken = require("../middlewares/authenticateToken");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
+const Joi = require("joi");
+
+const taskSchema = Joi.object({
+  text: Joi.string().alphanum().min(3).max(100).required().messages({
+    "string.base": "Text must be a string.",
+    "string.empty": "Text cannot be empty.",
+    "string.min": "Text must be at least {#limit} characters long.",
+    "string.max": "Text must be at most {#limit} characters long.",
+    "any.required": "Text is required.",
+  }),
+  image: Joi.string().uri(),
+});
 
 router.post(
   "/add",
   authenticateToken,
   upload.single("file"),
   async (req, res) => {
-    try {
-      const { text } = req.body;
-      const image = req.file ? req.file.filename : null;
-      const task = new Task({ text, image, userId: req.user.userId });
-      await task.save();
+    const { error, value } = taskSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    } else {
+      try {
+        const { text } = req.body;
+        const image = req.file ? req.file.filename : null;
+        const task = new Task({ text, image, userId: req.user.userId });
+        await task.save();
 
-      let user = await User.findById(req.user.userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        let user = await User.findById(req.user.userId);
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!user.tasks) {
+          user.tasks = [];
+        }
+
+        user.tasks.push(task._id);
+        await user.save();
+
+        res.status(201).json(task);
+      } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
       }
-
-      if (!user.tasks) {
-        user.tasks = [];
-      }
-
-      user.tasks.push(task._id);
-      await user.save();
-
-      res.status(201).json(task);
-    } catch (error) {
-      res.status(500).json({ message: "Server Error", error: error.message });
     }
   }
 );

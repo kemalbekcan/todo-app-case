@@ -1,6 +1,8 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import Task from "../components/Task";
 import TaskList from "../components/TaskList";
+import Navigation from "../components/Navigation";
+
 import { Modal, Button, Form, Input, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "../lib/axios";
@@ -63,10 +65,6 @@ const Home = () => {
         formData.append("file", file.originFileObj);
       }
     });
-
-    if (fileList.length == 0) {
-    } else {
-    }
 
     axios
       .put(`/task/update/${taskId}`, formData, {
@@ -142,19 +140,15 @@ const Home = () => {
             >
               <Button icon={<UploadOutlined />}>Upload</Button>
             </Upload>
-
-            {/* <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item> */}
           </Form>
         ) : (
           <p>Do you really want to delete?</p>
         )}
       </Modal>
+
       <div className="height-100vh flex flex-col justify-between">
-        <div className="">
+        <Navigation />
+        <div className="h-20">
           <TaskList refresh={refresh} showModal={showModal} />
         </div>
         <Task setRefresh={setRefresh} />

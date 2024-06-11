@@ -92,7 +92,7 @@ router.post("/login", async (req, res) => {
       }
 
       const accessToken = jwt.sign({ userId: user.id }, "yourSecretKey", {
-        expiresIn: "1m",
+        expiresIn: "15m",
       });
       const refreshToken = jwt.sign({ userId: user.id }, "yourSecretKey", {
         expiresIn: "7d",

@@ -1,11 +1,17 @@
 import axios from "../lib/axios";
-import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Form, Input } from "antd";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button, Checkbox, Form, Input, Alert } from "antd";
+
 import Cookies from "js-cookie";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({
+    message: "",
+    type: "",
+    show: "none",
+  });
 
   const onFinish = (values) => {
     console.log("Success:", values);
@@ -30,6 +36,10 @@ const Register = () => {
           "Login failed:",
           err.response ? err.response.data : err.message
         );
+        setAlert({
+          message: err.response ? err.response.data : err.message,
+          show: "block",
+        });
       });
   };
 
@@ -117,6 +127,13 @@ const Register = () => {
             Submit
           </Button>
         </Form.Item>
+        <Alert
+          message={
+            alert.message.error ? alert.message.error : alert.message.message
+          }
+          type="error"
+          style={{ display: alert.show }}
+        />
       </Form>
     </div>
   );

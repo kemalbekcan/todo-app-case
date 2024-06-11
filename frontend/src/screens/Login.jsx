@@ -1,11 +1,17 @@
 import axios from "../lib/axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, Alert } from "antd";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({
+    message: "",
+    type: "",
+    show: "none",
+  });
 
   const onFinish = (values) => {
     console.log("Success:", values);
@@ -32,6 +38,10 @@ const Login = () => {
           "Login failed:",
           err.response ? err.response.data : err.message
         );
+        setAlert({
+          message: err.response ? err.response.data : err.message,
+          show: "block",
+        });
       });
   };
 
@@ -106,6 +116,13 @@ const Login = () => {
             Submit
           </Button>
         </Form.Item>
+        <Alert
+          message={
+            alert.message.error ? alert.message.error : alert.message.message
+          }
+          type="error"
+          style={{ display: alert.show }}
+        />
       </Form>
     </div>
   );
