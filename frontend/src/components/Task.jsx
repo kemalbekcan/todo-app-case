@@ -9,11 +9,8 @@ const Task = ({ setRefresh }) => {
   const formData = new FormData();
 
   const onFinish = async (values) => {
-    console.log("values", values);
-    
     formData.append("text", values.message);
     fileList.forEach((file) => {
-      console.log("file", file);
       formData.append("file", file.originFileObj);
     });
 

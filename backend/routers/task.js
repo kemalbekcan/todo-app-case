@@ -69,24 +69,30 @@ router.get("/list", authenticateToken, async (req, res) => {
   }
 });
 
-// Tek bir görevi güncelleme
-router.put("/tasks/:id", authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { text, image } = req.body;
-    const task = await Task.findOneAndUpdate(
-      { _id: id, userId: req.user.id },
-      { text, image },
-      { new: true }
-    );
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+router.put(
+  "/update/:id",
+  authenticateToken,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { text } = req.body;
+      const image = req.file ? req.file.filename : null;
+
+      const task = await Task.findOneAndUpdate(
+        { _id: id },
+        { text, ...(image !== null && { image }) },
+        { new: true }
+      );
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+      res.status(200).json(task);
+    } catch (error) {
+      res.status(500).json({ message: "Server Error", error: error.message });
     }
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
   }
-});
+);
 
 router.delete("/delete/:id", authenticateToken, async (req, res) => {
   try {

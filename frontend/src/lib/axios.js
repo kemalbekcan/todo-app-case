@@ -31,11 +31,13 @@ instance.interceptors.response.use(
         const res = await axios.post("http://localhost:3000/user/token", null, {
           withCredentials: true,
         });
-        console.log('rs', res)
         const { accessToken } = res.data;
 
-        Cookies.set("token", accessToken) || localStorage.setItem("token", accessToken);
-        instance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+        Cookies.set("token", accessToken) ||
+          localStorage.setItem("token", accessToken);
+        instance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${accessToken}`;
 
         return instance(originalRequest);
       } catch (err) {

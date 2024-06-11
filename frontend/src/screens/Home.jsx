@@ -9,17 +9,71 @@ const Home = () => {
   const [refresh, setRefresh] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("delete");
+  const [message, setMessage] = useState("");
   const [taskId, setTaskId] = useState();
   const [fileList, setFileList] = useState([]);
 
   const showModal = (e, modalTypeText) => {
-    setTaskId(e);
+    if (modalTypeText != "update") {
+      setTaskId(e);
+    } else {
+      setTaskId(e._id);
+      setMessage(e.text);
+      if (e.image) {
+        setFileList([
+          {
+            uid: "-1",
+            name: e.image,
+            status: "done",
+            url: `http://localhost:3000/uploads/${e.image}`,
+          },
+        ]);
+      }
+    }
     setModalType(modalTypeText);
     setIsModalOpen(true);
   };
+
   const handleOk = () => {
+    if (modalType == "update") {
+      onFinish(taskId, message, fileList);
+    } else {
+      axios
+        .delete(`/task/delete/${taskId}`)
+        .then((response) => {
+          setRefresh((prev) => !prev);
+          setIsModalOpen(false);
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
+    }
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onFinish = async (taskId, text) => {
+    const formData = new FormData();
+
+    formData.append("text", text);
+
+    fileList.forEach((file) => {
+      if (file.originFileObj) {
+        formData.append("file", file.originFileObj);
+      }
+    });
+
+    if (fileList.length == 0) {
+    } else {
+    }
+
     axios
-      .delete(`/task/delete/${taskId}`)
+      .put(`/task/update/${taskId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         setRefresh((prev) => !prev);
         setIsModalOpen(false);
@@ -28,13 +82,6 @@ const Home = () => {
         console.log("err", err);
       });
   };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const onFinish = async (values) => {
-    console.log("values", values);
-  };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -42,6 +89,10 @@ const Home = () => {
 
   const onChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
+  };
+
+  const handleChangeText = (e) => {
+    setMessage(e.target.value);
   };
   return (
     <>
@@ -57,6 +108,8 @@ const Home = () => {
             className="flex gap-10"
             initialValues={{
               remember: true,
+              message: message,
+              image: fileList,
             }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -73,14 +126,19 @@ const Home = () => {
                 },
               ]}
             >
-              <Input placeholder="Message" />
+              <Input
+                placeholder="Message"
+                value={message}
+                onChange={handleChangeText}
+              />
             </Form.Item>
 
             <Upload
               fileList={fileList}
               onChange={onChange}
+              value={fileList}
               listType="picture"
-              beforeUpload={() => false} // Prevent upload before submit
+              beforeUpload={() => false}
             >
               <Button icon={<UploadOutlined />}>Upload</Button>
             </Upload>
