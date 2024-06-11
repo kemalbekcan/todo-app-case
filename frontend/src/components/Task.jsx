@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "../lib/axios";
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Form, Input } from "antd";
 
 // eslint-disable-next-line react/prop-types
 const Task = ({ setRefresh }) => {
@@ -20,29 +20,8 @@ const Task = ({ setRefresh }) => {
     console.log("Failed:", errorInfo);
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="mx-10 mb-10">
-      <Modal
-        title="Basic Modal"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Modal>
       <Form
         name="basic"
         className="flex gap-10"

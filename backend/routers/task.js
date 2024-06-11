@@ -40,23 +40,22 @@ router.get("/list", authenticateToken, async (req, res) => {
       .limit(limit)
       .skip(startIndex);
 
-    const results = {};
-    if (endIndex < (await Task.countDocuments().exec())) {
-      results.next = {
-        page: page + 1,
-        limit: limit,
-      };
-    }
+    const totalDocuments = await Task.countDocuments({
+      userId: req.user.userId,
+    });
 
-    if (startIndex > 0) {
-      results.previous = {
-        page: page - 1,
-        limit: limit,
-      };
-    }
+    const results = {
+      results: tasks,
+      next: endIndex < totalDocuments ? { page: page + 1, limit: limit } : null,
+      previous: startIndex > 0 ? { page: page - 1, limit: limit } : null,
+    };
 
-    results.results = tasks;
-    res.status(200).json(results);
+    res.status(200).json({
+      results,
+      page,
+      limit,
+      totalDocuments,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
@@ -81,17 +80,17 @@ router.put("/tasks/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Tek bir görevi silme
-router.delete("/tasks/:id", authenticateToken, async (req, res) => {
+router.delete("/delete/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const task = await Task.findOneAndDelete({ _id: id, userId: req.user.id });
+    console.log("id", id);
+    const task = await Task.findOneAndDelete({ _id: id });
+
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Kullanıcının tasks dizisinden görevi kaldırma
-    await User.findByIdAndUpdate(req.user.id, { $pull: { tasks: id } });
+    await User.findByIdAndUpdate(req.user.userId, { $pull: { tasks: id } });
 
     res.status(200).json({ message: "Task deleted" });
   } catch (error) {
