@@ -32,10 +32,6 @@ const Register = () => {
         navigate("/");
       })
       .catch((err) => {
-        console.error(
-          "Login failed:",
-          err.response ? err.response.data : err.message
-        );
         setAlert({
           message: err.response ? err.response.data : err.message,
           show: "block",

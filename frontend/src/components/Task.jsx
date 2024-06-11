@@ -67,7 +67,7 @@ const Task = ({ setRefresh }) => {
           fileList={fileList}
           onChange={onChange}
           listType="picture"
-          beforeUpload={() => false} // Prevent upload before submit
+          beforeUpload={() => false}
         >
           <Button icon={<UploadOutlined />}>Upload</Button>
         </Upload>

@@ -21,23 +21,14 @@ const Login = () => {
         password: values.password,
       })
       .then((response) => {
-        // Başarılı yanıt işlemleri
-        console.log("Success:", response.data);
-
         if (values.remember) {
-          // "Remember Me" seçiliyse token'ı çerezde sakla
           Cookies.set("token", response.data.accessToken, { expires: 7 }); // 7 gün boyunca sakla
         } else {
-          // "Remember Me" seçili değilse token'ı localStorage'da sakla
           localStorage.setItem("token", response.data.accessToken);
         }
         navigate("/");
       })
       .catch((err) => {
-        console.error(
-          "Login failed:",
-          err.response ? err.response.data : err.message
-        );
         setAlert({
           message: err.response ? err.response.data : err.message,
           show: "block",
