@@ -1,12 +1,28 @@
 import { useState } from "react";
 import axios from "../lib/axios";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 // eslint-disable-next-line react/prop-types
 const Task = ({ setRefresh }) => {
-  const onFinish = (values) => {
-    axios
-      .post("/task/add", { text: values.message })
+  const [fileList, setFileList] = useState([]);
+  const formData = new FormData();
+
+  const onFinish = async (values) => {
+    console.log("values", values);
+    
+    formData.append("text", values.message);
+    fileList.forEach((file) => {
+      console.log("file", file);
+      formData.append("file", file.originFileObj);
+    });
+
+    await axios
+      .post("/task/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         console.log("res", response);
         setRefresh((prev) => !prev);
@@ -20,6 +36,10 @@ const Task = ({ setRefresh }) => {
     console.log("Failed:", errorInfo);
   };
 
+  const onChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
   return (
     <div className="mx-10 mb-10">
       <Form
@@ -30,6 +50,7 @@ const Task = ({ setRefresh }) => {
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
+        encType="multipart/form-data"
         autoComplete="off"
       >
         <Form.Item
@@ -45,12 +66,16 @@ const Task = ({ setRefresh }) => {
           <Input placeholder="Message" />
         </Form.Item>
 
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
+        <Upload
+          fileList={fileList}
+          onChange={onChange}
+          listType="picture"
+          beforeUpload={() => false} // Prevent upload before submit
         >
+          <Button icon={<UploadOutlined />}>Upload</Button>
+        </Upload>
+
+        <Form.Item>
           <Button type="primary" htmlType="submit">
             Submit
           </Button>

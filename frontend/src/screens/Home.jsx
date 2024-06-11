@@ -7,14 +7,15 @@ import axios from "../lib/axios";
 const Home = () => {
   const [refresh, setRefresh] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("delete");
   const [taskId, setTaskId] = useState();
 
-  const showModal = (e) => {
+  const showModal = (e, modalTypeText) => {
     setTaskId(e);
+    setModalType(modalTypeText);
     setIsModalOpen(true);
   };
   const handleOk = () => {
-    console.log("taskId", taskId);
     axios
       .delete(`/task/delete/${taskId}`)
       .then((response) => {
@@ -31,12 +32,16 @@ const Home = () => {
   return (
     <>
       <Modal
-        title="Delete Task"
+        title={`${modalType == "update" ? "Update" : "Delete"} Task`}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <p>Do you really want to delete?</p>
+        {modalType == "update" ? (
+          "update"
+        ) : (
+          <p>Do you really want to delete?</p>
+        )}
       </Modal>
       <div className="height-100vh flex flex-col justify-between">
         <div className="">

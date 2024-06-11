@@ -24,6 +24,8 @@ app.use(cookieParser());
 
 app.use(logRequest);
 
+app.use("/uploads", express.static("uploads"));
+
 app.use("/user", userRouter);
 app.use("/task", taskRouter);
 

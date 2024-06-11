@@ -3,30 +3,38 @@ const router = express.Router();
 const Task = require("../models/Task");
 const User = require("../models/User");
 const authenticateToken = require("../middlewares/authenticateToken");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
-router.post("/add", authenticateToken, async (req, res) => {
-  try {
-    const { text, image } = req.body;
-    const task = new Task({ text, image, userId: req.user.userId });
-    await task.save();
+router.post(
+  "/add",
+  authenticateToken,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { text } = req.body;
+      const image = req.file ? req.file.filename : null;
+      const task = new Task({ text, image, userId: req.user.userId });
+      await task.save();
 
-    let user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      let user = await User.findById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (!user.tasks) {
+        user.tasks = [];
+      }
+
+      user.tasks.push(task._id);
+      await user.save();
+
+      res.status(201).json(task);
+    } catch (error) {
+      res.status(500).json({ message: "Server Error", error: error.message });
     }
-
-    if (!user.tasks) {
-      user.tasks = [];
-    }
-
-    user.tasks.push(task._id);
-    await user.save();
-
-    res.status(201).json(task);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
   }
-});
+);
 
 router.get("/list", authenticateToken, async (req, res) => {
   try {
@@ -83,7 +91,6 @@ router.put("/tasks/:id", authenticateToken, async (req, res) => {
 router.delete("/delete/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("id", id);
     const task = await Task.findOneAndDelete({ _id: id });
 
     if (!task) {

@@ -40,12 +40,27 @@ const TaskList = ({ refresh, showModal }) => {
       key: "text",
     },
     {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (image) =>
+        image ? (
+          <img
+            src={`http://localhost:3000/uploads/${image}`}
+            alt="task"
+            style={{ maxWidth: "100px" }}
+          />
+        ) : (
+          "Null"
+        ),
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a onClick={(e) => showModal(record._id)}>Delete</a>
+          <a onClick={() => showModal('sadas', 'update')}>Upload {record.name}</a>
+          <a onClick={() => showModal(record._id, 'delete')}>Delete</a>
         </Space>
       ),
     },
