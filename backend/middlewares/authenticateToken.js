@@ -4,7 +4,6 @@ const accessTokenSecret = "yourSecretKey";
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  console.log('tokennn', token)
 
   if (!token) {
     return res.sendStatus(401); // Unauthorized
@@ -14,8 +13,6 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: "Invalid token" }); // Forbidden
     }
-
-    console.log('req', user);
 
     req.user = user;
     next();
