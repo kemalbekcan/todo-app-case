@@ -14,7 +14,6 @@ const Login = () => {
   });
 
   const onFinish = (values) => {
-    console.log("Success:", values);
     axios
       .post("/user/login", {
         email: values.email,
@@ -22,7 +21,7 @@ const Login = () => {
       })
       .then((response) => {
         if (values.remember) {
-          Cookies.set("token", response.data.accessToken, { expires: 7 }); // 7 gün boyunca sakla
+          Cookies.set("token", response.data.accessToken, { expires: 7 });
         } else {
           localStorage.setItem("token", response.data.accessToken);
         }

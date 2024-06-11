@@ -14,7 +14,6 @@ const Register = () => {
   });
 
   const onFinish = (values) => {
-    console.log("Success:", values);
     axios
       .post("/user/register", {
         name: values.name,
@@ -22,10 +21,8 @@ const Register = () => {
         password: values.password,
       })
       .then((response) => {
-        console.log("Success:", response.data);
-
         if (values.remember) {
-          Cookies.set("token", response.data.accessToken, { expires: 7 }); // 7 gün boyunca sakla
+          Cookies.set("token", response.data.accessToken, { expires: 7 });
         } else {
           localStorage.setItem("token", response.data.accessToken);
         }
@@ -42,6 +39,7 @@ const Register = () => {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+
   return (
     <div className="height-100vh flex flex-col justify-center item-center">
       <Form

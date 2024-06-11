@@ -5,7 +5,6 @@ import Cookie from "js-cookie";
 
 const Navigation = () => {
   const handleLogout = () => {
-    console.log("log");
     Cookie.remove("token");
     localStorage.removeItem("token");
 

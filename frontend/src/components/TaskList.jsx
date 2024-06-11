@@ -14,7 +14,6 @@ const TaskList = ({ refresh, showModal }) => {
     axios
       .get(`/task/list?page=${page}&limit=10`)
       .then((response) => {
-        console.log("response", response);
         setTotal(response.data.totalDocuments);
         setPage(response.data.page);
 

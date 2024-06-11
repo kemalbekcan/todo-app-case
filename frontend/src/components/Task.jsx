@@ -21,7 +21,6 @@ const Task = ({ setRefresh }) => {
         },
       })
       .then((response) => {
-        console.log("res", response);
         setRefresh((prev) => !prev);
       })
       .catch((err) => {
